@@ -1,0 +1,22 @@
+{
+  "name": "gpxtocsv",
+  "version": "1.0.0",
+  "description": "Convert GPX files to CSV format",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "gpxparser": "^3.0.8",
+    "csv-writer": "^1.6.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/xml2js": "^0.4.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
