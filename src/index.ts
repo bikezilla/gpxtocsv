@@ -8,6 +8,8 @@ interface Track {
   distance: number;
   ascent: number;
   descent: number;
+  grade: number;
+  profile: string;
 }
 
 async function convertGPXtoCSV(
@@ -72,12 +74,26 @@ async function convertGPXtoCSV(
         }
       }
 
+      // Calculate average grade
+      const totalElevationChange = ascent - descent;
+      const grade = distance > 0 ? (totalElevationChange / distance) * 100 : 0;
+
+      // Determine track profile
+      let profile = "flat";
+      if (ascent > 100 && ascent > descent) {
+        profile = "ascend";
+      } else if (descent > 100 && descent > ascent) {
+        profile = "descend";
+      }
+
       return {
         name,
         color,
         distance: Number((distance / 1000).toFixed(3)),
         ascent: Math.round(ascent),
         descent: Math.round(descent),
+        grade: Number(grade.toFixed(2)),
+        profile,
       };
     });
 
@@ -90,6 +106,8 @@ async function convertGPXtoCSV(
         { id: "distance", title: "Distance (km)" },
         { id: "ascent", title: "Ascent (m)" },
         { id: "descent", title: "Descent (m)" },
+        { id: "grade", title: "Average Grade (%)" },
+        { id: "profile", title: "Profile" },
       ],
     });
 
