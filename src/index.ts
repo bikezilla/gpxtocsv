@@ -6,6 +6,8 @@ interface Track {
   name: string;
   color: string;
   distance: number;
+  ascent: number;
+  descent: number;
 }
 
 async function convertGPXtoCSV(
@@ -29,8 +31,11 @@ async function convertGPXtoCSV(
           "gpxx:DisplayColor"
         ]?.[0] || "";
 
-      // Calculate distance from track points
+      // Calculate distance, ascent, and descent from track points
       let distance = 0;
+      let ascent = 0;
+      let descent = 0;
+
       if (track.trkseg && track.trkseg[0].trkpt) {
         const points = track.trkseg[0].trkpt;
         for (let i = 1; i < points.length; i++) {
@@ -40,6 +45,8 @@ async function convertGPXtoCSV(
           const prevLon = parseFloat(prev.$.lon);
           const currLat = parseFloat(curr.$.lat);
           const currLon = parseFloat(curr.$.lon);
+          const prevEle = parseFloat(prev.ele?.[0] || "0");
+          const currEle = parseFloat(curr.ele?.[0] || "0");
 
           // Calculate distance using Haversine formula
           const R = 6371e3; // Earth's radius in meters
@@ -54,6 +61,14 @@ async function convertGPXtoCSV(
           const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
           distance += R * c;
+
+          // Calculate elevation changes
+          const eleDiff = currEle - prevEle;
+          if (eleDiff > 0) {
+            ascent += eleDiff;
+          } else {
+            descent += Math.abs(eleDiff);
+          }
         }
       }
 
@@ -61,6 +76,8 @@ async function convertGPXtoCSV(
         name,
         color,
         distance: Number((distance / 1000).toFixed(3)),
+        ascent: Math.round(ascent),
+        descent: Math.round(descent),
       };
     });
 
@@ -71,6 +88,8 @@ async function convertGPXtoCSV(
         { id: "name", title: "Track Name" },
         { id: "color", title: "Track Color" },
         { id: "distance", title: "Distance (km)" },
+        { id: "ascent", title: "Ascent (m)" },
+        { id: "descent", title: "Descent (m)" },
       ],
     });
 
