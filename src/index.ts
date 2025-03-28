@@ -1,6 +1,7 @@
 import { createObjectCsvWriter } from "csv-writer";
 import * as fs from "fs";
 import { parseStringPromise } from "xml2js";
+import { locales } from "./locales";
 
 interface Track {
   name: string;
@@ -14,9 +15,21 @@ interface Track {
 
 async function convertGPXtoCSV(
   inputFile: string,
-  outputFile: string
+  outputFile: string,
+  locale: string = "en"
 ): Promise<void> {
   try {
+    // Validate locale
+    if (!locales[locale]) {
+      throw new Error(
+        `Unsupported locale: ${locale}. Supported locales are: ${Object.keys(
+          locales
+        ).join(", ")}`
+      );
+    }
+
+    const strings = locales[locale];
+
     // Read and parse GPX file
     const gpxContent = fs.readFileSync(inputFile, "utf-8");
     const result = await parseStringPromise(gpxContent);
@@ -79,16 +92,16 @@ async function convertGPXtoCSV(
       const grade = distance > 0 ? (totalElevationChange / distance) * 100 : 0;
 
       // Determine track profile
-      let profile = "flat";
+      let profile = strings.profiles.flat;
       if (ascent > 100 && ascent > descent) {
-        profile = "ascend";
+        profile = strings.profiles.ascend;
       } else if (descent > 100 && descent > ascent) {
-        profile = "descend";
+        profile = strings.profiles.descend;
       }
 
       return {
         name,
-        color,
+        color: strings.colors[color] || color,
         distance: Number((distance / 1000).toFixed(3)),
         ascent: Math.round(ascent),
         descent: Math.round(descent),
@@ -101,13 +114,13 @@ async function convertGPXtoCSV(
     const csvWriter = createObjectCsvWriter({
       path: outputFile,
       header: [
-        { id: "name", title: "Track Name" },
-        { id: "color", title: "Track Color" },
-        { id: "distance", title: "Distance (km)" },
-        { id: "ascent", title: "Ascent (m)" },
-        { id: "descent", title: "Descent (m)" },
-        { id: "grade", title: "Average Grade (%)" },
-        { id: "profile", title: "Profile" },
+        { id: "name", title: strings.columns.name },
+        { id: "color", title: strings.columns.color },
+        { id: "distance", title: strings.columns.distance },
+        { id: "ascent", title: strings.columns.ascent },
+        { id: "descent", title: strings.columns.descent },
+        { id: "grade", title: strings.columns.grade },
+        { id: "profile", title: strings.columns.profile },
       ],
     });
 
@@ -123,10 +136,11 @@ async function convertGPXtoCSV(
 
 // Get command line arguments
 const args = process.argv.slice(2);
-if (args.length !== 2) {
-  console.log("Usage: npm start <input.gpx> <output.csv>");
+if (args.length < 2) {
+  console.log("Usage: npm start <input.gpx> <output.csv> [locale]");
+  console.log("Supported locales: en, bg");
   process.exit(1);
 }
 
-const [inputFile, outputFile] = args;
-convertGPXtoCSV(inputFile, outputFile).catch(console.error);
+const [inputFile, outputFile, locale = "en"] = args;
+convertGPXtoCSV(inputFile, outputFile, locale).catch(console.error);

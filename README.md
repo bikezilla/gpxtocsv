@@ -13,6 +13,7 @@ A simple Node.js script that converts GPX (GPS Exchange Format) files to CSV for
   - Track profile classification (ascend/descend/flat)
 - Handles multiple tracks and segments
 - TypeScript support
+- Localization support (English and Bulgarian)
 
 ## Installation
 
@@ -34,33 +35,57 @@ npm run build
 2. Run the script:
 
 ```bash
-npm start <input.gpx> <output.csv>
+npm start <input.gpx> <output.csv> [locale]
 ```
 
 For example:
 
 ```bash
+# English output (default)
 npm start track.gpx output.csv
+
+# Bulgarian output
+npm start track.gpx output.csv bg
 ```
 
 ## Output Format
 
-The CSV file will contain the following columns:
+The CSV file will contain the following columns (shown in both English and Bulgarian):
 
-- **Track Name**: Name of the track from the GPX file
-- **Track Color**: Color assigned to the track in the GPX file
-- **Distance (km)**: Total track distance in kilometers (3 decimal places)
-- **Ascent (m)**: Total elevation gain in meters
-- **Descent (m)**: Total elevation loss in meters
-- **Average Grade (%)**: Overall track grade as a percentage (2 decimal places)
-  - Positive values indicate uphill tracks
-  - Negative values indicate downhill tracks
-- **Profile**: Track profile classification
-  - "ascend": Track with more than 100m ascent and ascent > descent
-  - "descend": Track with more than 100m descent and descent > ascent
-  - "flat": Track with less than 100m total elevation change
+| English           | Bulgarian         |
+| ----------------- | ----------------- |
+| Track Name        | Име на маршрута   |
+| Track Color       | Цвят на маршрута  |
+| Distance (km)     | Разстояние (км)   |
+| Ascent (m)        | Изкачване (м)     |
+| Descent (m)       | Спускане (м)      |
+| Average Grade (%) | Среден наклон (%) |
+| Profile           | Профил            |
 
-### Example Output
+### Profile Types
+
+| English | Bulgarian |
+| ------- | --------- |
+| ascend  | изкачване |
+| descend | спускане  |
+| flat    | равен     |
+
+### Color Names
+
+| English | Bulgarian |
+| ------- | --------- |
+| Blue    | Син       |
+| Green   | Зелен     |
+| Red     | Червен    |
+| Yellow  | Жълт      |
+| Purple  | Лилав     |
+| Orange  | Оранжев   |
+| Pink    | Розов     |
+| Brown   | Кафяв     |
+| Black   | Черен     |
+| White   | Бял       |
+
+### Example Output (English)
 
 ```
 Track Name,Track Color,Distance (km),Ascent (m),Descent (m),Average Grade (%),Profile
@@ -69,10 +94,19 @@ Track Name,Track Color,Distance (km),Ascent (m),Descent (m),Average Grade (%),Pr
 1хх - Брестнишката,Green,5.792,85,466,-6.58,descend
 ```
 
+### Example Output (Bulgarian)
+
+```
+Име на маршрута,Цвят на маршрута,Разстояние (км),Изкачване (м),Спускане (м),Среден наклон (%),Профил
+1xx - Заека,Син,1.488,4,278,-18.37,спускане
+1хх - Белащица - Куклен,Зелен,7.164,210,207,0.04,изкачване
+1хх - Брестнишката,Зелен,5.792,85,466,-6.58,спускане
+```
+
 ## Development
 
 To run the script directly with TypeScript (without building):
 
 ```bash
-npm run dev <input.gpx> <output.csv>
+npm run dev <input.gpx> <output.csv> [locale]
 ```
