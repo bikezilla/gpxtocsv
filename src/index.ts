@@ -4,6 +4,7 @@ import { parseStringPromise } from "xml2js";
 import { locales } from "./locales";
 
 interface Track {
+  number: string;
   name: string;
   color: string;
   distance: number;
@@ -11,6 +12,20 @@ interface Track {
   descent: number;
   grade: number;
   profile: string;
+}
+
+function extractTrackNumber(name: string): { number: string; name: string } {
+  const match = name.match(/^(\d+[хx]?)\s*-\s*(.+)$/);
+  if (match) {
+    return {
+      number: match[1],
+      name: match[2].trim(),
+    };
+  }
+  return {
+    number: "",
+    name: name,
+  };
 }
 
 async function convertGPXtoCSV(
@@ -40,7 +55,8 @@ async function convertGPXtoCSV(
 
     // Extract track information
     const tracks: Track[] = result.gpx.trk.map((track: any) => {
-      const name = track.name?.[0] || "";
+      const fullName = track.name?.[0] || "";
+      const { number, name } = extractTrackNumber(fullName);
       const color =
         track.extensions?.[0]?.["gpxx:TrackExtension"]?.[0]?.[
           "gpxx:DisplayColor"
@@ -100,6 +116,7 @@ async function convertGPXtoCSV(
       }
 
       return {
+        number,
         name,
         color: strings.colors[color] || color,
         distance: Number((distance / 1000).toFixed(3)),
@@ -114,6 +131,7 @@ async function convertGPXtoCSV(
     const csvWriter = createObjectCsvWriter({
       path: outputFile,
       header: [
+        { id: "number", title: strings.columns.number },
         { id: "name", title: strings.columns.name },
         { id: "color", title: strings.columns.color },
         { id: "distance", title: strings.columns.distance },

@@ -1,5 +1,6 @@
 interface LocaleStrings {
   columns: {
+    number: string;
     name: string;
     color: string;
     distance: string;
@@ -25,6 +26,7 @@ interface Locales {
 export const locales: Locales = {
   en: {
     columns: {
+      number: "Track Number",
       name: "Track Name",
       color: "Track Color",
       distance: "Distance (km)",
@@ -53,6 +55,7 @@ export const locales: Locales = {
   },
   bg: {
     columns: {
+      number: "Номер на маршрута",
       name: "Име на маршрута",
       color: "Цвят на маршрута",
       distance: "Разстояние (км)",
